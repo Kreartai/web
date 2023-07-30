@@ -26,7 +26,8 @@ function Signin() {
         if (res.verified) {
           setCookie("token", res.token);
           setCookie("name", res.name);
-          setUser({ name: res.name });
+          setCookie("uid", res.uid);
+          setUser({ name: res.name, uid: res.uid });
           window.location.href = "/generate";
         } else {
           console.log("unauthorized");

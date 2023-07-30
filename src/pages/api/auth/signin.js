@@ -15,7 +15,7 @@ export default async function signin(req, res){
       const isMatched = bcrypt.compareSync(password, hash);
       if(isMatched){
         const jwtToken = createJwtToken({name:user.name, uid: user.uid})
-        res.send({status:'ok', verified:true, token: jwtToken, name:user.name})
+        res.send({status:'ok', verified:true, token: jwtToken, name:user.name, uid:user.uid})
       }else{
         res.send({status:'Password not matched', verified:false})
       }

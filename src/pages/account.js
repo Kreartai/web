@@ -4,9 +4,21 @@ import withAuth from "@/HOCS/withAuth";
 import { useCookies } from "react-cookie";
 
 function Account() {
-  const {user: { name, email },setUser, credit } = useContext(MyContext);
+  const [user, setUser] = useState({})
+  const {name, email, credit} = user
   const [cookies, setCookie, removeCookie] = useCookies(["cookie"]);
- 
+  useEffect(()=>{
+    fetch('/api/user')
+      .then(res=>res.json())
+      .then(result=>{
+        setUser(result.user)
+      })
+      .catch(err=>{
+        console.log(err);
+      })
+
+  },[])
+  console.log(name, email, credit);
   const handleLogout = () => {
     removeCookie("name");
     removeCookie("email");
@@ -24,9 +36,9 @@ function Account() {
             {
               email && <div>Email: {email}</div>
             }
-            {
+            {/* {
               credit > -1 && <div>Credit: {credit}</div> 
-            }
+            } */}
           </div>
           <div>
             <button

@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }) {
   const [cookies, setCookie, removeCookie,] = useCookies(['cookie']);
   
   useEffect(()=>{
-    setUser({name:cookies.name})
+    
     if(cookies.token){
       setIsLoggedIn(true)
     }
