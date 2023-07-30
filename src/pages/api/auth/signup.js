@@ -21,7 +21,7 @@ export default async function signup(req, res){
           if(isMatched){
             console.log('is matched pass');
             const jwtToken = createJwtToken({email, name:user.name, id: user._id})
-            res.send({status:'ok', token: jwtToken, name:user.name})
+            res.send({status:'ok', token: jwtToken, name:user.name, email:user.email, uid: user.uid})
           }else{
             res.status(500).json({error:'Password not matched'})
           }
@@ -35,7 +35,7 @@ export default async function signup(req, res){
           user.save()
           .then(()=>{
             const jwtToken = createJwtToken({email, name:name, uid})
-            res.send({status:'ok', token: jwtToken, name})
+            res.send({status:'ok', token: jwtToken, name, uid, email})
           })
           .catch(err=>{
             res.status(500).json({status:'error'})
