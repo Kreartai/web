@@ -1,0 +1,1 @@
+export const STABLEDIFFUSION_KEY = process.env.STABLEDIFFUSION_KEY
