@@ -27,6 +27,7 @@ function Signin() {
           setCookie("token", res.token);
           setCookie("name", res.name);
           setCookie("uid", res.uid);
+          setCookie("_id", res._id);
           setUser({ name: res.name, uid: res.uid });
           window.location.href = "/generate";
         } else {
@@ -75,7 +76,11 @@ function Signin() {
           </button>
         </div>
       </form>
+
+      {/* Social Signin  */}
       <SocialSignin />
+
+      
       <div className="flex flex-col items-center justify-center  gap-2">
         <div className="flex gap-2">
           <p className="text-white">Lost your password?</p>

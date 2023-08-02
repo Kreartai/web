@@ -7,6 +7,7 @@ import withAuth from "@/HOCS/withAuth";
 import { getLimit, setLimit } from "@/utils/limit";
 import { useRouter } from "next/router"
 import {BiArrowBack} from 'react-icons/bi'
+import AudioRecorder from "../AudioRecorder/AudioRecorder";
 function Generate() {
   const router = useRouter()
   return (
@@ -16,6 +17,7 @@ function Generate() {
         Back
       </button> */}
     <MySpeechRecognition />
+    {/* <AudioRecorder /> */}
     </div>
   );
 }

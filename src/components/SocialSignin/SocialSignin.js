@@ -39,6 +39,7 @@ function SocialSignin() {
           setCookie("token", res.token)
           setCookie("name", res.name)
           setCookie("uid", res.uid)
+          setCookie("_id", res._id);
           setUser({ name: res.name, email:res.email})
           window.location.href = "/generate"
         })

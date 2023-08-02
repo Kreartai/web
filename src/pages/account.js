@@ -23,6 +23,8 @@ function Account() {
     removeCookie("name");
     removeCookie("email");
     removeCookie("token");
+    removeCookie("uid");
+    removeCookie("_id");
     window.location.href = "/";
     setUser({});
   };

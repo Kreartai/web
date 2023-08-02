@@ -20,7 +20,8 @@ const UserSchema = new mongoose.Schema({
     default: 10
   },
   dob: Date,
-  securityKey: String
+  securityKey: String,
+  
 })
 
 const UserModel = mongoose.models.User || mongoose.model('User', UserSchema)
