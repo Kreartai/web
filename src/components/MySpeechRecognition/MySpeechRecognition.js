@@ -4,7 +4,8 @@ import { FaStop } from "react-icons/fa";
 import { MyContext } from "@/pages/_app";
 import { getLimit, setLimit } from "@/utils/limit";
 import { startRecord, stopRecord } from "@/utils/recording";
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function MySpeechRecognition() {
   const {prompt, setPrompt,  setGeneratedImage, inprogress, setInprogress}  = useContext(MyContext)
   const [isListening, setIsListening] = useState(false);
@@ -102,7 +103,7 @@ function MySpeechRecognition() {
     })
     .catch(err=>{
       setInprogress(false)
-      console.log(err);
+      toast('Something wrong! Try again later.')
     })
   }
   return (
