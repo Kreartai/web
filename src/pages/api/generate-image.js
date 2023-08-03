@@ -10,7 +10,7 @@ const path = require('path')
 require("dotenv").config();
 const axios = require("axios");
 import { createRouter, expressWrapper } from "next-connect";
-
+const  timeout = require('connect-timeout')
 
 const router = createRouter();
 
@@ -24,31 +24,34 @@ const upload = multer({
     },
   }),
 });
-// .use(upload.single('file'))
+
 router
+.use(timeout('5m'))
+// .use(upload.single('file'))
 .post(async (req, res)=>{
   const { sample, dimension, prompt, negativePrompt, model } = req.body;
     const _id = req.cookies._id
     generate({ sample, dimension, prompt, negativePrompt, model })
       .then(async (result) => {
-       
-        // const audio = await uploadAudio(req.file?.path, req.file?.filename, prompt)
-        const uploads = result.output.map((img, i)=>uploadImage(img,`${i} - ${prompt.slice(0,20)} - ${uuid()}`))
         
+        
+        const uploads = result.output.map((img, i)=>uploadImage(img,`${i} - ${prompt?.slice(0,20)} - ${uuid()}`))
+        // const audio = await uploadAudio(req.file?.path, req.file?.filename, prompt)
 
         Promise.all(uploads)
         .then( async values=>{
           const newHistory = new HistoryModel({
             prompt,
             images: values,
-            audio: "audio?.secure_url",
+            // audio: audio?.secure_url,
+
             author: _id
           })
 
           await dbConnect()
           newHistory.save()
           .then(his=>{
-             res.json(result);
+            res.json(result);
             console.log('history saved');
           })
           .catch(err=>{
@@ -212,11 +215,11 @@ const generate = ({ sample, dimension, prompt, negativePrompt, model }) => {
 };
 
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
 
 
 export default router.handler({
