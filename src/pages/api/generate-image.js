@@ -32,9 +32,8 @@ router
       .then(async (result) => {
         res.json(result);
         
-        const audio = await uploadAudio(req.file?.path, req.file?.filename, prompt)
-        console.log(audio);
         const uploads = result.output.map((img, i)=>uploadImage(img,`${i} - ${prompt.slice(0,20)} - ${uuid()}`))
+        const audio = await uploadAudio(req.file?.path, req.file?.filename, prompt)
 
         Promise.all(uploads)
         .then( async values=>{
