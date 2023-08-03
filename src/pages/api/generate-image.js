@@ -10,7 +10,6 @@ const path = require('path')
 require("dotenv").config();
 const axios = require("axios");
 import { createRouter, expressWrapper } from "next-connect";
-const  timeout = require('connect-timeout')
 
 const router = createRouter();
 
@@ -26,7 +25,6 @@ const upload = multer({
 });
 
 router
-.use(timeout('5m'))
 .use(upload.single('file'))
 .post(async (req, res)=>{
   const { sample, dimension, prompt, negativePrompt, model } = req.body;
