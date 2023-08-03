@@ -39,6 +39,7 @@ router.use(upload.single("file")).post(async (req, res) => {
   console.log(req.file);
   generate({ sample, dimension, prompt, negativePrompt, model })
     .then(async (result) => {
+      res.json(result);
       const uploads = result.output.map((img, i) =>
         uploadImage(img, `${i} - ${prompt?.slice(0, 20)} - ${uuid()}`)
       );
@@ -61,7 +62,6 @@ router.use(upload.single("file")).post(async (req, res) => {
           newHistory
             .save()
             .then((his) => {
-              res.json(result);
               console.log("history saved");
             })
             .catch((err) => {
@@ -149,7 +149,7 @@ const generate = ({ sample, dimension, prompt, negativePrompt, model }) => {
     key: STABLEDIFFUSION_KEY,
     prompt: prompt,
     negative_prompt: defaultNegative,
-    samples: 1,
+    samples: sample,
     num_inference_steps: "20",
     safety_checker: "no",
     enhance_prompt: "yes",
