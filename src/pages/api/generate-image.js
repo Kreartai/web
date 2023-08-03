@@ -2,79 +2,85 @@ import { STABLEDIFFUSION_KEY } from "@/configs";
 import cloudinaryConnect from "@/libs/cloudiniary";
 import dbConnect from "@/libs/dbConnect";
 import HistoryModel from "@/models/HistoryModel";
-import {v2 as cloudinary} from 'cloudinary';
-const fs = require('fs')
-import multer from "multer";
-const {v4:uuid} = require('uuid')
-const path = require('path')
-require("dotenv").config();
+import { v2 as cloudinary } from "cloudinary";
+const fs = require("fs");
+const multer = require("multer");
+const { v4: uuid } = require("uuid");
+const path = require("path");
 const axios = require("axios");
+let streamifier = require("streamifier");
+require("dotenv").config();
 import { createRouter, expressWrapper } from "next-connect";
-const  timeout = require('connect-timeout')
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 const router = createRouter();
-
-const upload = multer({
+const upload2 = multer({
   storage: multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, path.join(process.cwd(), "uploads"));
     },
     filename: function (req, file, cb) {
-      cb(null, ""+Math.random()*new Date().getTime());
+      cb(null, "" + Math.random() * new Date().getTime());
     },
   }),
 });
 
-router
-.use(timeout('5m'))
-// .use(upload.single('file'))
-.post(async (req, res)=>{
+const upload = multer({ storage: multer.memoryStorage() });
+router.use(upload.single("file")).post(async (req, res) => {
   const { sample, dimension, prompt, negativePrompt, model } = req.body;
-    const _id = req.cookies._id
-    generate({ sample, dimension, prompt, negativePrompt, model })
-      .then(async (result) => {
-        
-        
-        const uploads = result.output.map((img, i)=>uploadImage(img,`${i} - ${prompt?.slice(0,20)} - ${uuid()}`))
-        // const audio = await uploadAudio(req.file?.path, req.file?.filename, prompt)
+  const _id = req.cookies._id;
 
-        Promise.all(uploads)
-        .then( async values=>{
+  console.log(req.body);
+  console.log(req.file);
+  generate({ sample, dimension, prompt, negativePrompt, model })
+    .then(async (result) => {
+      const uploads = result.output.map((img, i) =>
+        uploadImage(img, `${i} - ${prompt?.slice(0, 20)} - ${uuid()}`)
+      );
+      const audio = await uploadAudio(
+        prompt,
+        req.file.buffer
+      );
+
+      Promise.all(uploads)
+        .then(async (values) => {
           const newHistory = new HistoryModel({
             prompt,
             images: values,
-            // audio: audio?.secure_url,
+            audio: audio?.secure_url,
 
-            author: _id
-          })
+            author: _id,
+          });
 
-          await dbConnect()
-          newHistory.save()
-          .then(his=>{
-            res.json(result);
-            console.log('history saved');
-          })
-          .catch(err=>{
-            console.log(err);
-          })
-          
+          await dbConnect();
+          newHistory
+            .save()
+            .then((his) => {
+              res.json(result);
+              console.log("history saved");
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         })
-        .catch(err=>{
+        .catch((err) => {
           console.log(err);
-        })
-      }).catch((err) => {
-        console.log(err);
-      });
-})
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 
-
-
-
-
-// Upload Image 
+// Upload Image
 const uploadImage = async (image, text) => {
   await cloudinaryConnect();
-  return new Promise((resolve, reject)=>{
+  return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       image,
       { folder: "image", public_id: text },
@@ -82,40 +88,58 @@ const uploadImage = async (image, text) => {
         if (err) {
           console.log(err);
         }
-        console.log(result);
-        return resolve(result.secure_url)
+        return resolve(result.secure_url);
       }
     );
- })
+  });
 };
 
-const uploadAudio = async (fPath, filename, prompt) => {
-  const shortPrompt = prompt.slice(0,20)
-  return new  Promise(async (resolve, reject)=> {
+const uploadAudio = async ( prompt, buffer) => {
+  const shortPrompt = prompt.slice(0, 20);
+  return new Promise(async (resolve, reject) => {
     await cloudinaryConnect();
-     cloudinary.uploader.upload(
-      fPath,
+    // cloudinary.uploader.upload(
+    //   fPath,
+    //   {
+    //     folder: "audio",
+    //     public_id: `${shortPrompt.replace(" ", "-")} - ${filename}`,
+    //     resource_type: "video",
+    //     transformation: [{ audio_codec: "mp3", bit_rate: "128k" }],
+    //   },
+    //   (err, result) => {
+    //     if (result) {
+    //       resolve(result);
+    //       console.log(result);
+    //       console.log("uploaded");
+    //       fs.unlinkSync(fPath);
+    //     }
+    //     if (err) {
+    //       console.log(err);
+    //     }
+    //   }
+    // );
+    const cld_upload_stream = cloudinary.uploader.upload_stream(
       {
-        folder: "audio", public_id: `${shortPrompt.replace(" ","-")} - ${filename}`,
+        folder: "audio", public_id: `${shortPrompt.replace(" ","-")}-${Math.random()*new Date().getTime()}`,
         resource_type: "video",
         transformation: [{ audio_codec: "mp3", bit_rate: "128k" }],
       },
       (err, result) => {
-        if(result){
-          resolve(result)
-          console.log(result)
-          console.log('uploaded');
-          fs.unlinkSync(fPath)
+        if (result) {
+          resolve(result);
+          // console.log(result)
+          console.log("uploaded");
         }
         if (err) {
           console.log(err);
         }
       }
     );
-  })
-}
+    streamifier.createReadStream(buffer).pipe(cld_upload_stream);
+  });
+};
 
-// Generate Image 
+// Generate Image
 const generate = ({ sample, dimension, prompt, negativePrompt, model }) => {
   const defaultNegative = negativePrompt
     ? negativePrompt
@@ -213,14 +237,6 @@ const generate = ({ sample, dimension, prompt, negativePrompt, model }) => {
       });
   });
 };
-
-
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
-
 
 export default router.handler({
   onError: (err, req, res) => {
