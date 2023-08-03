@@ -33,10 +33,10 @@ router
     const _id = req.cookies._id
     generate({ sample, dimension, prompt, negativePrompt, model })
       .then(async (result) => {
-        res.json(result);
-        
-        const uploads = result.output.map((img, i)=>uploadImage(img,`${i} - ${prompt.slice(0,20)} - ${uuid()}`))
+       
         const audio = await uploadAudio(req.file?.path, req.file?.filename, prompt)
+        const uploads = result.output.map((img, i)=>uploadImage(img,`${i} - ${prompt.slice(0,20)} - ${uuid()}`))
+        
 
         Promise.all(uploads)
         .then( async values=>{
@@ -50,6 +50,7 @@ router
           await dbConnect()
           newHistory.save()
           .then(his=>{
+             res.json(result);
             console.log('history saved');
           })
           .catch(err=>{
@@ -123,7 +124,7 @@ const generate = ({ sample, dimension, prompt, negativePrompt, model }) => {
     key: STABLEDIFFUSION_KEY,
     prompt: prompt,
     negative_prompt: defaultNegative,
-    samples: 4,
+    samples: 1,
     num_inference_steps: "20",
     safety_checker: "no",
     enhance_prompt: "yes",
