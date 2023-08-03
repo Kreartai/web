@@ -10,6 +10,7 @@ const path = require('path')
 require("dotenv").config();
 const axios = require("axios");
 import { createRouter, expressWrapper } from "next-connect";
+const  timeout = require('connect-timeout')
 
 const router = createRouter();
 
@@ -25,6 +26,7 @@ const upload = multer({
 });
 
 router
+.use(timeout('5m'))
 .use(upload.single('file'))
 .post(async (req, res)=>{
   const { sample, dimension, prompt, negativePrompt, model } = req.body;
@@ -78,6 +80,7 @@ const uploadImage = async (image, text) => {
         if (err) {
           console.log(err);
         }
+        console.log(result);
         return resolve(result.secure_url)
       }
     );
@@ -98,6 +101,7 @@ const uploadAudio = async (fPath, filename, prompt) => {
       (err, result) => {
         if(result){
           resolve(result)
+          console.log(result)
           console.log('uploaded');
           fs.unlinkSync(fPath)
         }
