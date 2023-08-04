@@ -6,10 +6,13 @@ import { getLimit, setLimit } from "@/utils/limit";
 import { startRecord, stopRecord } from "@/utils/recording";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+let recognition = {}
+
 function MySpeechRecognition() {
   const {prompt, setPrompt,  setGeneratedImage, inprogress, setInprogress}  = useContext(MyContext)
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState(null)
+  // const [recognition, setRecognition] = useState({})
   const [negativePrompt, setNegativePrompt] = useState('')
   const [model, setModel] = useState('')
   const [audio, setAudio] = useState()
@@ -19,6 +22,14 @@ function MySpeechRecognition() {
       setPrompt(text)
     }
   }
+  useEffect(()=>{
+    window.navigator.mediaDevices ? window.navigator.mediaDevices.getUserMedia({audio:true})
+    .then(res=>{
+      console.log(res);
+      window.alert(JSON.stringify(res.id))
+    })
+    :  window.alert("No media device")
+  },[])
 
   const RecognitionResult = (event) => {
     let texts = [];
@@ -27,16 +38,16 @@ function MySpeechRecognition() {
     }
     setPromptHandler(texts.join(" "))
   };
+  if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  }
+  recognition.continuous = true;
+  recognition.lang = "en-US";
+  recognition.onresult = RecognitionResult
+  // useEffect(()=>{
+   
 
-  useEffect(()=>{
-    if("webkitSpeechRecognition" in global){
-      let rec = new webkitSpeechRecognition()
-      rec.continuous = true;
-      rec.lang = "en-US";
-      rec.onresult = RecognitionResult
-      setRecognition(rec)
-    }
-  },[])
+  // },[])
   
 
  
@@ -44,9 +55,13 @@ function MySpeechRecognition() {
   const startListening = () => {
     setPrompt("");
     startRecord()
-    recognition.start();
-    console.log(recognition);
-    setIsListening(true);
+    if(recognition){
+      console.log(recognition);
+      recognition.start();
+      setIsListening(true);
+    }else{
+      window.alert("Recognition not supported")
+    }
   };
   
   const stopListening = async() => {
