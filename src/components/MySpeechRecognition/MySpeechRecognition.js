@@ -44,16 +44,16 @@ function MySpeechRecognition() {
   const startListening = () => {
     setPrompt("");
     recognition.start();
-    // startRecord()
+    startRecord()
     console.log(recognition);
     setIsListening(true);
   };
   
  
   const stopListening = async() => {
-      recognition.stop();
-      // let recordedAudio = await stopRecord()
       setIsListening(false);
+      recognition.stop();
+      let recordedAudio = await stopRecord()
     
     // const formData = new FormData()
     // formData.append('file', recordedAudio)
@@ -64,6 +64,7 @@ function MySpeechRecognition() {
     // const transcript = await t.json()
     // await setPrompt(transcript.text)
     // return {audio: recordedAudio, transcript}
+    return {audio: recordedAudio}
 
   };
 
@@ -86,7 +87,8 @@ function MySpeechRecognition() {
 
     const formData = new FormData()
     formData.append('sample', 4)
-    formData.append('prompt', listening.transcript.text)
+    formData.append('prompt', prompt)
+    // formData.append('prompt', listening.transcript.text)
     formData.append('file', listening.audio)
   
     // formData.append('negativePrompt', '')
