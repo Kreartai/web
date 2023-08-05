@@ -45,6 +45,7 @@ router.use(upload.single("file")).post(async (req, res) => {
 
       Promise.all(uploads)
         .then(async (values) => {
+          result.output = values
           const newHistory = new HistoryModel({
             prompt,
             images: values,
