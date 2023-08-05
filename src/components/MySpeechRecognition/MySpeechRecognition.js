@@ -6,13 +6,10 @@ import { getLimit, setLimit } from "@/utils/limit";
 import { startRecord, stopRecord } from "@/utils/recording";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-let recognition = {}
-
 function MySpeechRecognition() {
   const {prompt, setPrompt,  setGeneratedImage, inprogress, setInprogress}  = useContext(MyContext)
   const [isListening, setIsListening] = useState(false);
-  // const [recognition, setRecognition] = useState({})
+  const [recognition, setRecognition] = useState(null)
   const [negativePrompt, setNegativePrompt] = useState('')
   const [model, setModel] = useState('')
   const [audio, setAudio] = useState()
@@ -22,14 +19,6 @@ function MySpeechRecognition() {
       setPrompt(text)
     }
   }
-  useEffect(()=>{
-    window.navigator.mediaDevices ? window.navigator.mediaDevices.getUserMedia({audio:true})
-    .then(res=>{
-      console.log(res);
-      window.alert(JSON.stringify(res.id))
-    })
-    :  window.alert("No media device")
-  },[])
 
   const RecognitionResult = (event) => {
     let texts = [];
@@ -38,16 +27,16 @@ function MySpeechRecognition() {
     }
     setPromptHandler(texts.join(" "))
   };
-  if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
-    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  }
-  recognition.continuous = true;
-  recognition.lang = "en-US";
-  recognition.onresult = RecognitionResult
-  // useEffect(()=>{
-   
 
-  // },[])
+  useEffect(()=>{
+    if("webkitSpeechRecognition" in global){
+      let rec = new webkitSpeechRecognition()
+      rec.continuous = true;
+      rec.lang = "en-US";
+      rec.onresult = RecognitionResult
+      setRecognition(rec)
+    }
+  },[])
   
 
  
@@ -55,23 +44,30 @@ function MySpeechRecognition() {
   const startListening = () => {
     setPrompt("");
     startRecord()
-    if(recognition){
-      console.log(recognition);
-      recognition.start();
-      setIsListening(true);
-    }else{
-      window.alert("Recognition not supported")
-    }
+    // recognition.start();
+    console.log(recognition);
+    setIsListening(true);
   };
   
   const stopListening = async() => {
     setIsListening(false);
-    recognition.stop();
+    // recognition.stop();
     let recordedAudio = await stopRecord()
-    return recordedAudio
+    
+
+    const formData = new FormData()
+    formData.append('file', recordedAudio)
+    const t = await fetch('/api/transcription', {
+      method: 'POST',
+      body: formData
+    })
+    const transcript = await t.json()
+    await setPrompt(transcript.text)
+    return {audio: recordedAudio, transcript}
+
   };
   const generateImage = async() =>{
-    let recordedAudio = await stopListening()
+    let listening = await stopListening()
     setInprogress(true)
     // setPrompt('')
     setNegativePrompt('')
@@ -88,8 +84,8 @@ function MySpeechRecognition() {
 
     const formData = new FormData()
     formData.append('sample', 4)
-    formData.append('prompt', prompt)
-    formData.append('file', recordedAudio)
+    formData.append('prompt', listening.transcript.text)
+    formData.append('file', listening.audio)
   
     // formData.append('negativePrompt', '')
     // formData.append('width', 520)

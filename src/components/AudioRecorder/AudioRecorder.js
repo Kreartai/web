@@ -22,8 +22,8 @@ function AudioRecorder() {
         type: blob.type,
         lastModified: Date.now()
       })
-      const player = new Audio(URL.createObjectURL(file));
-      player.play();
+      // const player = new Audio(URL.createObjectURL(file));
+      // player.play();
 
       const formData = new FormData();
       formData.append('file', file);

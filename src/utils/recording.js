@@ -4,6 +4,7 @@ const recorder = new MicRecorder({
 });
 
 export const startRecord = () =>{
+ 
   recorder.start().then(() => {
     // something else
     console.log('Record Started');
@@ -13,9 +14,7 @@ export const startRecord = () =>{
 }
 export const stopRecord = () =>{
   return new Promise((resolve, reject)=>{
-    recorder
-    .stop()
-    .getMp3().then(([buffer, blob])=>{
+    recorder.context &&  recorder.stop().getMp3().then(([buffer, blob])=>{
       const file = new File(buffer, 'audio.mp3', {
         type: blob.type,
         lastModified: Date.now()

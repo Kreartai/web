@@ -33,6 +33,7 @@ const upload2 = multer({
 const upload = multer({ storage: multer.memoryStorage() });
 router.use(upload.single("file")).post(async (req, res) => {
   const { sample, dimension, prompt, negativePrompt, model } = req.body;
+  console.log(prompt, 'prompt');
   const _id = req.cookies._id;
 
   generate({ sample, dimension, prompt, negativePrompt, model })
