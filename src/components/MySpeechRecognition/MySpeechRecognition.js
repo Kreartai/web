@@ -43,27 +43,27 @@ function MySpeechRecognition() {
 
   const startListening = () => {
     setPrompt("");
-    startRecord()
-    // recognition.start();
+    recognition.start();
+    // startRecord()
     console.log(recognition);
     setIsListening(true);
   };
   
  
   const stopListening = async() => {
-    // recognition.stop();
-      let recordedAudio = await stopRecord()
+      recognition.stop();
+      // let recordedAudio = await stopRecord()
       setIsListening(false);
     
-    const formData = new FormData()
-    formData.append('file', recordedAudio)
-    const t = await fetch('/api/transcription', {
-      method: 'POST',
-      body: formData
-    })
-    const transcript = await t.json()
-    await setPrompt(transcript.text)
-    return {audio: recordedAudio, transcript}
+    // const formData = new FormData()
+    // formData.append('file', recordedAudio)
+    // const t = await fetch('/api/transcription', {
+    //   method: 'POST',
+    //   body: formData
+    // })
+    // const transcript = await t.json()
+    // await setPrompt(transcript.text)
+    // return {audio: recordedAudio, transcript}
 
   };
 
@@ -134,11 +134,11 @@ function MySpeechRecognition() {
               className="hover:text-purple-200 cursor-pointer text-3xl text-white "
             />
           </button>
-          {/* <FaStop
+          <FaStop
             title="Stop Listening"
             onClick={stopListening}
             className="cursor-pointer text-xl hover:text-red-500 text-red-400"
-          /> */}
+          />
         </div>
       </div>
       <div>
@@ -163,5 +163,6 @@ function MySpeechRecognition() {
 }
 
 export default MySpeechRecognition;
+
 
 
