@@ -41,15 +41,14 @@ router.use(upload.single("file")).post(async (req, res) => {
       const uploads = result.output.map((img, i) =>
         uploadImage(img, `${i} - ${prompt?.slice(0, 20)} - ${uuid()}`)
       );
-      const audio = await uploadAudio(prompt, req.file.buffer);
+      // const audio = await uploadAudio(prompt, req.file.buffer);
 
       Promise.all(uploads)
         .then(async (values) => {
           const newHistory = new HistoryModel({
             prompt,
             images: values,
-            audio: audio?.secure_url,
-
+            // audio: audio?.secure_url,
             author: _id,
           });
 
@@ -67,9 +66,7 @@ router.use(upload.single("file")).post(async (req, res) => {
         .catch((err) => {
           console.log(err);
         });
-
        
-      
     })
     .catch((err) => {
       console.log(err);
@@ -94,55 +91,56 @@ const uploadImage = async (image, text) => {
   });
 };
 
-const uploadAudio = async (prompt, buffer) => {
-  const shortPrompt = prompt.slice(0, 20);
-  return new Promise(async (resolve, reject) => {
-    await cloudinaryConnect();
-    // cloudinary.uploader.upload(
-    //   fPath,
-    //   {
-    //     folder: "audio",
-    //     public_id: `${shortPrompt.replace(" ", "-")} - ${filename}`,
-    //     resource_type: "video",
-    //     transformation: [{ audio_codec: "mp3", bit_rate: "128k" }],
-    //   },
-    //   (err, result) => {
-    //     if (result) {
-    //       resolve(result);
-    //       console.log(result);
-    //       console.log("uploaded");
-    //       fs.unlinkSync(fPath);
-    //     }
-    //     if (err) {
-    //       console.log(err);
-    //     }
-    //   }
-    // );
-    const cld_upload_stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "audio",
-        public_id: `${shortPrompt.replace(" ", "-")}-${
-          Math.random() * new Date().getTime()
-        }`,
-        resource_type: "video",
-        transformation: [{ audio_codec: "mp3", bit_rate: "128k" }],
-      },
-      (err, result) => {
-        if (result) {
-          resolve(result);
-          // console.log(result)
-          console.log("uploaded");
-        }
-        if (err) {
-          console.log(err);
-        }
-      }
-    );
-    streamifier.createReadStream(buffer).pipe(cld_upload_stream);
-  });
-};
+// const uploadAudio = async (prompt, buffer) => {
+//   const shortPrompt = prompt.slice(0, 20);
+//   return new Promise(async (resolve, reject) => {
+//     await cloudinaryConnect();
+//     // cloudinary.uploader.upload(
+//     //   fPath,
+//     //   {
+//     //     folder: "audio",
+//     //     public_id: `${shortPrompt.replace(" ", "-")} - ${filename}`,
+//     //     resource_type: "video",
+//     //     transformation: [{ audio_codec: "mp3", bit_rate: "128k" }],
+//     //   },
+//     //   (err, result) => {
+//     //     if (result) {
+//     //       resolve(result);
+//     //       console.log(result);
+//     //       console.log("uploaded");
+//     //       fs.unlinkSync(fPath);
+//     //     }
+//     //     if (err) {
+//     //       console.log(err);
+//     //     }
+//     //   }
+//     // );
+//     const cld_upload_stream = cloudinary.uploader.upload_stream(
+//       {
+//         folder: "audio",
+//         public_id: `${shortPrompt.replace(" ", "-")}-${
+//           Math.random() * new Date().getTime()
+//         }`,
+//         resource_type: "video",
+//         transformation: [{ audio_codec: "mp3", bit_rate: "128k" }],
+//       },
+//       (err, result) => {
+//         if (result) {
+//           resolve(result);
+//           // console.log(result)
+//           console.log("uploaded");
+//         }
+//         if (err) {
+//           console.log(err);
+//         }
+//       }
+//     );
+//     streamifier.createReadStream(buffer).pipe(cld_upload_stream);
+//   });
+// };
 
-// Generate Image
+
+
 const generate = ({ sample, dimension, prompt, negativePrompt, model }) => {
   const defaultNegative = negativePrompt
     ? negativePrompt

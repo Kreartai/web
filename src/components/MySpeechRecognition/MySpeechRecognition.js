@@ -2,15 +2,19 @@ import React, { useContext, useEffect, useState } from "react";
 import { MdKeyboardVoice } from "react-icons/md";
 import { FaStop } from "react-icons/fa";
 import { MyContext } from "@/pages/_app";
+import { getLimit, setLimit } from "@/utils/limit";
+import { startRecord, stopRecord } from "@/utils/recording";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function MySpeechRecognition() {
   const {prompt, setPrompt,  setGeneratedImage, inprogress, setInprogress}  = useContext(MyContext)
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null)
   const [negativePrompt, setNegativePrompt] = useState('')
   const [model, setModel] = useState('')
+  const [audio, setAudio] = useState()
 
   const setPromptHandler = (text) => {
-   
     if(true){
       setPrompt(text)
     }
@@ -23,6 +27,7 @@ function MySpeechRecognition() {
     }
     setPromptHandler(texts.join(" "))
   };
+
   useEffect(()=>{
     if("webkitSpeechRecognition" in global){
       let rec = new webkitSpeechRecognition()
@@ -34,38 +39,67 @@ function MySpeechRecognition() {
   },[])
   
 
+ 
+
   const startListening = () => {
     setPrompt("");
-    // recognition.stop();
+    recognition.stop()
     recognition.start();
+    // startRecord()
     console.log(recognition);
     setIsListening(true);
   };
-  const stopListening = () => {
-    recognition.stop();
-    setIsListening(false);
+  
+ 
+  const stopListening = async() => {
+      setIsListening(false);
+      recognition.stop();
+
+    // let recordedAudio = await stopRecord()
+
+    // const formData = new FormData()
+    // formData.append('file', recordedAudio)
+    // const t = await fetch('/api/transcription', {
+    //   method: 'POST',
+    //   body: formData
+    // })
+    // const transcript = await t.json()
+    // await setPrompt(transcript.text)
+    // return {audio: recordedAudio, transcript}
+    // return {audio: recordedAudio}
   };
 
-  const generateImage = () =>{
-    stopListening()
+  const generateImage = async() =>{
+    let listening = await stopListening()
+   
     setInprogress(true)
-    setPrompt('')
+    // setPrompt('')
     setNegativePrompt('')
-    const data = {
-      sample: 4, prompt, 
-      negativePrompt:"",
-      // model: "midjourney"
-      // dimension: {
-      //   width: 520,
-      //   height: 520
-      // },
-    }
+    
+    // const data = {
+    //   sample: 4, prompt, 
+    //   negativePrompt:"",
+    //   model: "midjourney",
+    //   dimension: {
+    //     width: 520,
+    //     height: 520
+    //   },
+    // }
+
+    const formData = new FormData()
+    formData.append('sample', 4)
+    formData.append('prompt', prompt)
+    
+    // formData.append('file', listening.audio)
+  
+    // formData.append('negativePrompt', '')
+    // formData.append('width', 520)
+    // formData.append('height', 520)
+
+    // API Call
     fetch('/api/generate-image', {
       method: 'POST',
-      headers: {
-        'Content-Type' : 'application/json'
-      }, 
-      body: JSON.stringify(data)
+      body: formData
     })
     .then(res=>res.json())
     .then(result=>{
@@ -85,7 +119,7 @@ function MySpeechRecognition() {
     })
     .catch(err=>{
       setInprogress(false)
-      console.log(err);
+      toast('Something wrong! Try again later.')
     })
   }
   return (
@@ -125,10 +159,13 @@ function MySpeechRecognition() {
         inprogress ? <button className="text-white bg-purple-500 px-3 py-1 rounded-3xl" onClick={()=>window.location.reload()}>Stop Generate</button>
         : <button className="text-white bg-purple-500 px-3 py-1 rounded-3xl" onClick={generateImage}>Generate</button>
       }
-      <p>{prompt.length}/600</p>
+      <p>{prompt?.length}/600</p>
     </div>
     </>
   );
 }
 
 export default MySpeechRecognition;
+
+
+
