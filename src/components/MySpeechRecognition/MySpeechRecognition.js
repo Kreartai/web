@@ -49,12 +49,12 @@ function MySpeechRecognition() {
     setIsListening(true);
   };
   
+ 
   const stopListening = async() => {
-    setIsListening(false);
     // recognition.stop();
-    let recordedAudio = await stopRecord()
+      let recordedAudio = await stopRecord()
+      setIsListening(false);
     
-
     const formData = new FormData()
     formData.append('file', recordedAudio)
     const t = await fetch('/api/transcription', {
@@ -66,8 +66,10 @@ function MySpeechRecognition() {
     return {audio: recordedAudio, transcript}
 
   };
+
   const generateImage = async() =>{
     let listening = await stopListening()
+   
     setInprogress(true)
     // setPrompt('')
     setNegativePrompt('')
@@ -132,11 +134,11 @@ function MySpeechRecognition() {
               className="hover:text-purple-200 cursor-pointer text-3xl text-white "
             />
           </button>
-          <FaStop
+          {/* <FaStop
             title="Stop Listening"
             onClick={stopListening}
             className="cursor-pointer text-xl hover:text-red-500 text-red-400"
-          />
+          /> */}
         </div>
       </div>
       <div>
@@ -154,13 +156,12 @@ function MySpeechRecognition() {
         inprogress ? <button className="text-white bg-purple-500 px-3 py-1 rounded-3xl" onClick={()=>window.location.reload()}>Stop Generate</button>
         : <button className="text-white bg-purple-500 px-3 py-1 rounded-3xl" onClick={generateImage}>Generate</button>
       }
-      <p>{prompt.length}/600</p>
+      <p>{prompt?.length}/600</p>
     </div>
     </>
   );
 }
 
 export default MySpeechRecognition;
-
 
 
