@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     "https://api.thenextleg.io/v2/message/" + req.query.id,
     {
       headers: {
-        Authorization: "Bearer f1cd0d27-a07c-4b8b-b08c-a4f3a64e93f7",
+        Authorization: "Bearer 08f61cb9-0abb-4519-be5c-2cef3b431af4",
         "Content-Type": "application/json",
       },
     }
