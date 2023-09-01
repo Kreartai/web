@@ -2,6 +2,7 @@ import { STABLEDIFFUSION_KEY } from "@/configs";
 import cloudinaryConnect from "@/libs/cloudiniary";
 import dbConnect from "@/libs/dbConnect";
 import HistoryModel from "@/models/HistoryModel";
+import uploadImage from "@/utils/uploadImage";
 import { v2 as cloudinary } from "cloudinary";
 const fs = require("fs");
 const multer = require("multer");
@@ -19,16 +20,7 @@ export const config = {
 };
 
 const router = createRouter();
-const upload2 = multer({
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, path.join(process.cwd(), "uploads"));
-    },
-    filename: function (req, file, cb) {
-      cb(null, "" + Math.random() * new Date().getTime());
-    },
-  }),
-});
+
 
 const upload = multer({ storage: multer.memoryStorage() });
 router.use(upload.single("file")).post(async (req, res) => {
@@ -76,21 +68,6 @@ router.use(upload.single("file")).post(async (req, res) => {
 });
 
 // Upload Image
-const uploadImage = async (image, text) => {
-  await cloudinaryConnect();
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      image,
-      { folder: "image", public_id: text },
-      (err, result) => {
-        if (err) {
-          console.log(err);
-        }
-        return resolve(result?.secure_url);
-      }
-    );
-  });
-};
 
 // const uploadAudio = async (prompt, buffer) => {
 //   const shortPrompt = prompt.slice(0, 20);

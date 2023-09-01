@@ -30,11 +30,11 @@ function ShowImages() {
           generatedImage.output.map((img, id) => {
             return (
               <div key={id} className="relative group ">
-                <MyImage
+                <img
                   className="w-[200px] lg:w-[250px] xl:w-[300px]"
                   src={img}
-                  height={300}
-                  width={300}
+                  // height={300}
+                  // width={300}
                 />
                 <div className=" bg-slate-400 rounded-sm px-2 py-1 invisible group-hover:visible  flex gap-3 absolute bottom-1 right-1">
                   <button onClick={() => handleCopy(img)}>

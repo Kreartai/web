@@ -6,6 +6,8 @@ import { getLimit, setLimit } from "@/utils/limit";
 import { startRecord, stopRecord } from "@/utils/recording";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import generateMidjourneyImage from "@/utils/generateMidjourneyImage";
+import checkMidjourneyImage from "@/utils/checkMidjourneyImage";
 function MySpeechRecognition() {
   const {prompt, setPrompt,  setGeneratedImage, inprogress, setInprogress}  = useContext(MyContext)
   const [isListening, setIsListening] = useState(false);
@@ -97,15 +99,10 @@ function MySpeechRecognition() {
     // formData.append('height', 520)
 
     // API Call
-    fetch('/api/generate-image', {
-      method: 'POST',
-      body: formData
-    })
-    .then(res=>res.json())
-    .then(result=>{
-      const {id, meta, output} = result
-      if(output){
-        setGeneratedImage({id, meta, output})
+   generateMidjourneyImage(formData, prompt)
+    .then(res=>{
+      if(res){
+        setGeneratedImage({ output: res})
         
         if(getLimit()){
           setLimit(Number(getLimit())+1)
@@ -116,11 +113,36 @@ function MySpeechRecognition() {
         toast('Something wrong! Try again.')
       }
       setInprogress(false)
+      
     })
-    .catch(err=>{
-      setInprogress(false)
-      toast('Something wrong! Try again later.')
-    })
+
+
+  
+  //   fetch('/api/generate-image', {
+  //     method: 'POST',
+  //     body: formData
+  //   })
+  //   .then(res=>res.json())
+  //   .then(result=>{
+  //     const {id, meta, output} = result
+  //     console.log(id, meta, output);
+      // if(output){
+      //   setGeneratedImage({ output})
+        
+      //   if(getLimit()){
+      //     setLimit(Number(getLimit())+1)
+      //   }else{
+      //     setLimit(1)
+      //   }
+      // }else{
+      //   toast('Something wrong! Try again.')
+      // }
+      // setInprogress(false)
+  //   })
+  //   .catch(err=>{
+  //     setInprogress(false)
+  //     toast('Something wrong! Try again later.')
+  //   })
   }
   return (
     <>
