@@ -11,14 +11,14 @@ import generateWatermarkImage from "@/utils/generateWatermarkImage";
 import downloadImage from "@/utils/downloadImage";
 
 function ShowImages() {
-  const { generatedImage, inprogress, prompt } = useContext(MyContext);
+  const { generatedImage, inprogress, prompt, progressData } = useContext(MyContext);
   
 
   const handleCopy = (sImage) => {
     navigator.clipboard.writeText(sImage);
     toast("Copied");
   };
-  
+  console.log(progressData, 'progressdata');
 
   return (
     <>
@@ -26,7 +26,7 @@ function ShowImages() {
 
 
         {generatedImage.output &&
-          !inprogress &&
+          !progressData.progressImage && !inprogress &&
           generatedImage.output.map((img, id) => {
             return (
               <div key={id} className="relative group ">
@@ -47,11 +47,23 @@ function ShowImages() {
               </div>
             );
           })}
-        {inprogress && (
+        {inprogress && !progressData.progressImage && (
           <div>
             <MyImage src={LoadingGif} height="200" width="200" />
           </div>
         )}
+        {
+          progressData.progressImage &&  
+          <div>
+            <h3 className="mt-5 font-semibold text-gray-200 text-center mb-5">Progress {progressData.progress}%</h3>
+            <img
+            className="w-[200px] lg:w-[250px] xl:w-[300px]"
+            src={progressData.progressImage}
+            // height={300}
+            // width={300}
+          />
+          </div>
+        }
       </div>
     </>
   );

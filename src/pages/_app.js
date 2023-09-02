@@ -9,6 +9,7 @@ export const MyContext = createContext();
 export default function App({ Component, pageProps }) {
   const [prompt, setPrompt] = useState("");
   const [generatedImage, setGeneratedImage] = useState({});
+  const [progressData, setProgressData] = useState({});
   const [inprogress, setInprogress] = useState(false);
   const [user, setUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState("null")
@@ -32,7 +33,8 @@ export default function App({ Component, pageProps }) {
     setInprogress,
     user,
     setUser,
-    isLoggedIn, setIsLoggedIn
+    isLoggedIn, setIsLoggedIn,
+    progressData, setProgressData
   };
   return (
     <MyContext.Provider value={value}>
