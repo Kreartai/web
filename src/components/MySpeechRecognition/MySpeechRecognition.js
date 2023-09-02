@@ -124,7 +124,7 @@ function MySpeechRecognition() {
             .catch((err) => {
               clearInterval(myInterval);
             });
-        }, 10000);
+        }, 5000);
       }, 10000);
 
       if (getLimit()) {
